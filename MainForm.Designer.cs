@@ -58,7 +58,7 @@
             AutoLaunchCheckbox = new CheckBox();
             GithubLink = new LinkLabel();
             DonateLink = new LinkLabel();
-            linkLabel1 = new LinkLabel();
+            UpdateLink = new LinkLabel();
             MainLayoutPanel.SuspendLayout();
             OutButtonLayoutPanel.SuspendLayout();
             InButtonLayoutPanel.SuspendLayout();
@@ -422,7 +422,6 @@
             AutoLaunchCheckbox.TabIndex = 1;
             AutoLaunchCheckbox.Text = "Launch on Startup";
             AutoLaunchCheckbox.UseVisualStyleBackColor = true;
-            AutoLaunchCheckbox.CheckedChanged += AutoLaunchCheckbox_CheckedChanged;
             // 
             // GithubLink
             // 
@@ -448,25 +447,25 @@
             DonateLink.Text = "Donate";
             DonateLink.LinkClicked += DonateLink_LinkClicked;
             // 
-            // linkLabel1
+            // UpdateLink
             // 
-            linkLabel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            linkLabel1.AutoSize = true;
-            linkLabel1.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            linkLabel1.Location = new Point(451, 525);
-            linkLabel1.Name = "linkLabel1";
-            linkLabel1.Size = new Size(127, 21);
-            linkLabel1.TabIndex = 4;
-            linkLabel1.TabStop = true;
-            linkLabel1.Text = "Update Available";
-            linkLabel1.LinkClicked += linkLabel1_LinkClicked;
+            UpdateLink.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            UpdateLink.AutoSize = true;
+            UpdateLink.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            UpdateLink.Location = new Point(451, 525);
+            UpdateLink.Name = "UpdateLink";
+            UpdateLink.Size = new Size(127, 21);
+            UpdateLink.TabIndex = 4;
+            UpdateLink.TabStop = true;
+            UpdateLink.Text = "Update Available";
+            UpdateLink.Visible = false;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(695, 559);
-            Controls.Add(linkLabel1);
+            Controls.Add(UpdateLink);
             Controls.Add(DonateLink);
             Controls.Add(GithubLink);
             Controls.Add(AutoLaunchCheckbox);
@@ -474,6 +473,7 @@
             MinimumSize = new Size(420, 350);
             Name = "MainForm";
             Text = "Audio Pin";
+            Shown += MainForm_Shown;
             Resize += MainForm_Resize;
             MainLayoutPanel.ResumeLayout(false);
             OutButtonLayoutPanel.ResumeLayout(false);
@@ -521,6 +521,6 @@
         private CheckBox AutoLaunchCheckbox;
         private LinkLabel GithubLink;
         private LinkLabel DonateLink;
-        private LinkLabel linkLabel1;
+        private LinkLabel UpdateLink;
     }
 }
