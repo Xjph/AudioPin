@@ -6,10 +6,13 @@ namespace AudioPin
 {
     public partial class MainForm : Form
     {
+        #region Fields
         private AudioDeviceManager _audioDeviceManager;
         private HttpClient _httpClient = new();
         public bool HideTray = false;
+        #endregion
 
+        #region Constructor
         public MainForm(AudioDeviceManager audioDeviceManager)
         {
             _audioDeviceManager = audioDeviceManager;
@@ -29,7 +32,9 @@ namespace AudioPin
             }
             AutoLaunchCheckbox.CheckedChanged += AutoLaunchCheckbox_CheckedChanged;
         }
+        #endregion
 
+        #region Settings
         private void LoadSettings()
         {
             OutCommCheck.Checked = Properties.Settings.Default.CommOut;
@@ -41,7 +46,9 @@ namespace AudioPin
             _audioDeviceManager.PinnedOutputCommDevices.ForEach(device => OutCommList.Items.Add(device.Name));
             _audioDeviceManager.PinnedInputCommDevices.ForEach(device => InCommList.Items.Add(device.Name));
         }
+        #endregion
 
+        #region Device Management
         private void OutPlusButton_Click(object sender, EventArgs e)
         {
             var selectForm = new DeviceSelect(_audioDeviceManager, EDataFlow.eRender);
@@ -96,82 +103,6 @@ namespace AudioPin
                 }
                 _audioDeviceManager.SavePinnedDevices();
             }
-        }
-
-        private void OutCommCheck_CheckedChanged(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.CommOut = OutCommCheck.Checked;
-            Properties.Settings.Default.Save();
-            if (OutCommCheck.Checked)
-            {
-                ShowRightCol(OutListLayoutPanel);
-                ShowRightCol(OutLabelLayoutPanel);
-            }
-            else
-            {
-                HideRightCol(OutListLayoutPanel);
-                HideRightCol(OutLabelLayoutPanel);
-            }
-        }
-
-        private void InCommCheck_CheckedChanged(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.CommIn = InCommCheck.Checked;
-            Properties.Settings.Default.Save();
-            if (InCommCheck.Checked)
-            {
-                ShowRightCol(InListLayoutPanel);
-                ShowRightCol(InLabelLayoutPanel);
-            }
-            else
-            {
-                HideRightCol(InListLayoutPanel);
-                HideRightCol(InLabelLayoutPanel);
-            }
-        }
-
-        private static void ShowRightCol(TableLayoutPanel panel)
-        {
-            panel.ColumnStyles[0].Width = 50;
-            panel.ColumnStyles[1].Width = 50;
-        }
-
-        private static void HideRightCol(TableLayoutPanel panel)
-        {
-            panel.ColumnStyles[0].Width = 100;
-            panel.ColumnStyles[1].Width = 0;
-        }
-
-        private void OutList_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (OutList.SelectedIndex > -1) OutCommList.SelectedIndex = -1;
-            OutMinusButton.Enabled = OutList.SelectedIndex != -1;
-            OutUpButton.Enabled = OutList.SelectedIndex > 0;
-            OutDownButton.Enabled = OutList.SelectedIndex < OutList.Items.Count - 1 && OutList.SelectedIndex != -1;
-        }
-
-        private void OutCommList_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (OutCommList.SelectedIndex > -1) OutList.SelectedIndex = -1;
-            OutMinusButton.Enabled = OutCommList.SelectedIndex != -1;
-            OutUpButton.Enabled = OutCommList.SelectedIndex > 0;
-            OutDownButton.Enabled = OutCommList.SelectedIndex < OutCommList.Items.Count - 1 && OutCommList.SelectedIndex != -1;
-        }
-
-        private void InList_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (InList.SelectedIndex > -1) InCommList.SelectedIndex = -1;
-            InMinusButton.Enabled = InList.SelectedIndex != -1;
-            InUpButton.Enabled = InList.SelectedIndex > 0;
-            InDownButton.Enabled = InList.SelectedIndex < InList.Items.Count - 1 && InList.SelectedIndex != -1;
-        }
-
-        private void InCommList_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (InCommList.SelectedIndex > -1) InList.SelectedIndex = -1;
-            InMinusButton.Enabled = InCommList.SelectedIndex != -1;
-            InUpButton.Enabled = InCommList.SelectedIndex > 0;
-            InDownButton.Enabled = InCommList.SelectedIndex < InCommList.Items.Count - 1 && InCommList.SelectedIndex != -1;
         }
 
         private void OutMinusButton_Click(object sender, EventArgs e)
@@ -257,7 +188,89 @@ namespace AudioPin
             listBoxToSwap.SelectedIndex = index + 1;
             _audioDeviceManager.SavePinnedDevices();
         }
+        #endregion
 
+        #region Device List Selection Handlers
+        private void OutList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (OutList.SelectedIndex > -1) OutCommList.SelectedIndex = -1;
+            OutMinusButton.Enabled = OutList.SelectedIndex != -1;
+            OutUpButton.Enabled = OutList.SelectedIndex > 0;
+            OutDownButton.Enabled = OutList.SelectedIndex < OutList.Items.Count - 1 && OutList.SelectedIndex != -1;
+        }
+
+        private void OutCommList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (OutCommList.SelectedIndex > -1) OutList.SelectedIndex = -1;
+            OutMinusButton.Enabled = OutCommList.SelectedIndex != -1;
+            OutUpButton.Enabled = OutCommList.SelectedIndex > 0;
+            OutDownButton.Enabled = OutCommList.SelectedIndex < OutCommList.Items.Count - 1 && OutCommList.SelectedIndex != -1;
+        }
+
+        private void InList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (InList.SelectedIndex > -1) InCommList.SelectedIndex = -1;
+            InMinusButton.Enabled = InList.SelectedIndex != -1;
+            InUpButton.Enabled = InList.SelectedIndex > 0;
+            InDownButton.Enabled = InList.SelectedIndex < InList.Items.Count - 1 && InList.SelectedIndex != -1;
+        }
+
+        private void InCommList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (InCommList.SelectedIndex > -1) InList.SelectedIndex = -1;
+            InMinusButton.Enabled = InCommList.SelectedIndex != -1;
+            InUpButton.Enabled = InCommList.SelectedIndex > 0;
+            InDownButton.Enabled = InCommList.SelectedIndex < InCommList.Items.Count - 1 && InCommList.SelectedIndex != -1;
+        }
+        #endregion
+
+        #region UI Helpers
+        private void OutCommCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.CommOut = OutCommCheck.Checked;
+            Properties.Settings.Default.Save();
+            if (OutCommCheck.Checked)
+            {
+                ShowRightCol(OutListLayoutPanel);
+                ShowRightCol(OutLabelLayoutPanel);
+            }
+            else
+            {
+                HideRightCol(OutListLayoutPanel);
+                HideRightCol(OutLabelLayoutPanel);
+            }
+        }
+
+        private void InCommCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.CommIn = InCommCheck.Checked;
+            Properties.Settings.Default.Save();
+            if (InCommCheck.Checked)
+            {
+                ShowRightCol(InListLayoutPanel);
+                ShowRightCol(InLabelLayoutPanel);
+            }
+            else
+            {
+                HideRightCol(InListLayoutPanel);
+                HideRightCol(InLabelLayoutPanel);
+            }
+        }
+
+        private static void ShowRightCol(TableLayoutPanel panel)
+        {
+            panel.ColumnStyles[0].Width = 50;
+            panel.ColumnStyles[1].Width = 50;
+        }
+
+        private static void HideRightCol(TableLayoutPanel panel)
+        {
+            panel.ColumnStyles[0].Width = 100;
+            panel.ColumnStyles[1].Width = 0;
+        }
+        #endregion
+
+        #region List/Device Utility
         private static void Swap(ListBox list, int indexA, int indexB)
         {
             var itemA = list.Items[indexA];
@@ -273,7 +286,9 @@ namespace AudioPin
             list[indexA] = itemB;
             list[indexB] = itemA;
         }
+        #endregion
 
+        #region Tray and Window Events
         private void TrayIcon_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             Show();
@@ -296,16 +311,18 @@ namespace AudioPin
             }
         }
 
-        static private string LaunchCommand(bool hide = false)
+        private void MainForm_Shown(object sender, EventArgs e)
         {
-            var process = Process.GetCurrentProcess();
-            if (process.MainModule != null)
+            if (WindowState == FormWindowState.Minimized || HideTray)
             {
-                return $"{process.MainModule.FileName} /min{(hide ? " /hide" : string.Empty)}";
+                Hide();
+                if (HideTray)
+                    TrayIcon.Visible = false;
             }
-            return string.Empty;
         }
+        #endregion
 
+        #region Auto-Launch
         private void AutoLaunchCheckbox_CheckedChanged(object? sender, EventArgs e)
         {
             var hide = ModifierKeys.HasFlag(Keys.Shift);
@@ -347,16 +364,18 @@ namespace AudioPin
             return false;
         }
 
-        private void DonateLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        static private string LaunchCommand(bool hide = false)
         {
-            OpenURL("https://ko-fi.com/vithigar");
+            var process = Process.GetCurrentProcess();
+            if (process.MainModule != null)
+            {
+                return $"{process.MainModule.FileName} /min{(hide ? " /hide" : string.Empty)}";
+            }
+            return string.Empty;
         }
+        #endregion
 
-        private void GithubLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            OpenURL("https://github.com/Xjph/AudioPin");
-        }
-
+        #region Update and Links
         private async void CheckUpdate()
         {
             try
@@ -412,6 +431,18 @@ namespace AudioPin
             }
         }
 
+        private void DonateLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            OpenURL("https://ko-fi.com/vithigar");
+        }
+
+        private void GithubLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            OpenURL("https://github.com/Xjph/AudioPin");
+        }
+        #endregion
+
+        #region Utility
         private static void OpenURL(string url)
         {
             try
@@ -427,15 +458,6 @@ namespace AudioPin
                 MessageBox.Show($"Failed to open URL: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        private void MainForm_Shown(object sender, EventArgs e)
-        {
-            if (WindowState == FormWindowState.Minimized || HideTray)
-            {
-                Hide();
-                if (HideTray)
-                    TrayIcon.Visible = false;
-            }
-        }
+        #endregion
     }
 }
