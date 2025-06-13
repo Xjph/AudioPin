@@ -4,7 +4,7 @@ Ever been annoyed by Windows audio defaults changing when you plug or unplug dev
 
 This utility allows a user to "pin" a selection of audio devices in windows with a prioritised list. On any change to audio devices AudioPin should very quickly re-assert your pinned devices setting the highest prioritised available device as default.
 
-Defaults for meda and communications can be pinned individually.
+Defaults for media and communications can be pinned individually.
 
 ## Hidden Auto-Start
 
