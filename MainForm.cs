@@ -21,6 +21,8 @@ namespace AudioPin
             TrayIcon.Icon = Icon;
             TrayIcon.ContextMenuStrip = new TrayMenu(this);
             LoadSettings();
+            var version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version??new Version();
+            Text += $" - v{version.Major}.{version.Minor}.{version.Build}";
             CheckUpdate();
             if (AutoLaunchEnabled())
             {
