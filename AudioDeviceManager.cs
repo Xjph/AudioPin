@@ -9,7 +9,9 @@ namespace AudioPin
 {
     public class AudioDeviceManager : IMMNotificationClient
     {
-        private MMDeviceEnumerator _deviceEnumerator;
+        private readonly MMDeviceEnumerator _deviceEnumerator;
+        private AudioDevice? _currentDefaultOutput;
+        private AudioDevice? _currentDefaultInput;
 
         public AudioDeviceManager()
         {
@@ -28,7 +30,21 @@ namespace AudioPin
 
         public List<AudioDevice> GetInputDevices => GetDevices(EDataFlow.eCapture);
 
-        [MemberNotNull(["PinnedOutputDevices", "PinnedInputDevices", "PinnedOutputCommDevices", "PinnedInputCommDevices"])]
+        public AudioDevice CurrentDefaultOutput 
+        {
+            get => _currentDefaultOutput ?? new();
+        }
+
+        public AudioDevice CurrentDefaultInput 
+        {
+            get => _currentDefaultInput ?? new();
+        }
+
+        [MemberNotNull([
+            "PinnedOutputDevices", 
+            "PinnedInputDevices", 
+            "PinnedOutputCommDevices", 
+            "PinnedInputCommDevices"])]
         private void RetrievePinnedDevices()
         {
             PinnedOutputDevices = [
@@ -58,14 +74,8 @@ namespace AudioPin
             {
                 OnDefaultDeviceChanged(EDataFlow.eRender, ERole.eConsole, string.Empty);
                 OnDefaultDeviceChanged(EDataFlow.eCapture, ERole.eConsole, string.Empty);
-                if (Properties.Settings.Default.CommOut)
-                {
-                    OnDefaultDeviceChanged(EDataFlow.eRender, ERole.eCommunications, string.Empty);
-                }
-                if (Properties.Settings.Default.CommIn)
-                {
-                    OnDefaultDeviceChanged(EDataFlow.eCapture, ERole.eCommunications, string.Empty);
-                }
+                OnDefaultDeviceChanged(EDataFlow.eRender, ERole.eCommunications, string.Empty);
+                OnDefaultDeviceChanged(EDataFlow.eCapture, ERole.eCommunications, string.Empty);
             });
         }
 
@@ -216,11 +226,25 @@ namespace AudioPin
         public void OnDefaultDeviceChanged(EDataFlow flow, ERole role, [MarshalAs(UnmanagedType.LPWStr)] string defaultDeviceId)
         {
             var devices = GetDevices(flow);
-            var connectedPins = GetActivePinnedDevices(devices, flow, role);
+            ERole pinRole = 
+                (flow == EDataFlow.eCapture && !Properties.Settings.Default.CommIn
+                || flow == EDataFlow.eRender && !Properties.Settings.Default.CommOut)
+                ? ERole.eConsole
+                : role;
+            
+            var connectedPins = GetActivePinnedDevices(devices, flow, pinRole);
 
             if (connectedPins.Count > 0 && connectedPins.First().ID != defaultDeviceId)
             {
                 SetDefaultDevice(connectedPins.First().ID, role);
+                if (flow == EDataFlow.eRender && role != ERole.eCommunications)
+                {
+                    _currentDefaultOutput = connectedPins.First();
+                }
+                else
+                {
+                    _currentDefaultInput = connectedPins.First();
+                }
             }
         }
 
