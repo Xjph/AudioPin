@@ -226,7 +226,10 @@ namespace AudioPin
 
         private List<AudioDevice> GetActivePinnedDevices(IEnumerable<AudioDevice> devices, EDataFlow flow, ERole role)
         {
-            bool devIdFilter(AudioDevice d) => devices.Any(dev => dev.ID == d.ID);
+            // Should match on name first, that's what users see and ID is not always stable
+            bool devIdFilter(AudioDevice d) => devices.Any(dev => 
+                dev.Name == d.Name 
+                || dev.ID == d.ID);
 
             bool syncComms = flow == EDataFlow.eRender
                 ? Properties.Settings.Default.CommOut
