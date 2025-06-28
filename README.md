@@ -1,5 +1,7 @@
 # AudioPin
 
+[Get the latest release here!](https://github.com/Xjph/AudioPin/releases/latest)
+
 Ever been annoyed by Windows audio defaults changing when you plug or unplug devices?
 
 This utility allows a user to "pin" a selection of audio devices in windows with a prioritised list. On any change to audio devices AudioPin should very quickly re-assert your pinned devices setting the highest prioritised available device as default.
