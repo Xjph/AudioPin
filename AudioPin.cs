@@ -17,6 +17,17 @@ namespace AudioPin
                     process.Kill();
             }
 
+            try
+            {
+                Properties.Settings.Default.Upgrade();
+            }
+            catch
+            {
+                MessageBox.Show(
+                    "Unable to load saved settings from previous version. Defaults have been restored.",
+                    "Settings Load Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
             ApplicationConfiguration.Initialize();
             var audioManager = new AudioDeviceManager();
             var mainForm = new MainForm(audioManager);
