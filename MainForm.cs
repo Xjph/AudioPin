@@ -12,6 +12,11 @@ namespace AudioPin
         public bool HideTray = false;
         #endregion
 
+        #region External List Accessors
+        public ListBox OutputList => OutList;
+        public ListBox InputList => InList;
+        #endregion
+
         #region Constructor
         public MainForm(AudioDeviceManager audioDeviceManager)
         {
@@ -19,7 +24,9 @@ namespace AudioPin
             InitializeComponent();
             Icon = Icon.ExtractAssociatedIcon(System.Reflection.Assembly.GetExecutingAssembly().Location);
             TrayIcon.Icon = Icon;
-            TrayIcon.ContextMenuStrip = new TrayMenu(this);
+            var trayMenu = new TrayMenu(this, audioDeviceManager);
+            TrayIcon.ContextMenuStrip = trayMenu;
+            TrayIcon.Click += (_,_) => trayMenu.RefreshMenus();
             LoadSettings();
             var version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version??new Version();
             Text += $" - v{version.Major}.{version.Minor}.{version.Build}";
@@ -273,7 +280,7 @@ namespace AudioPin
         #endregion
 
         #region List/Device Utility
-        private static void Swap(ListBox list, int indexA, int indexB)
+        public static void Swap(ListBox list, int indexA, int indexB)
         {
             var itemA = list.Items[indexA];
             var itemB = list.Items[indexB];
@@ -281,7 +288,7 @@ namespace AudioPin
             list.Items[indexB] = itemA;
         }
 
-        private static void Swap(List<AudioDevice> list, int indexA, int indexB)
+        public static void Swap(List<AudioDevice> list, int indexA, int indexB)
         {
             var itemA = list[indexA];
             var itemB = list[indexB];
