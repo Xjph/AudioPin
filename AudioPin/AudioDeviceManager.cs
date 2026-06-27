@@ -69,6 +69,7 @@ namespace AudioPin
 
         private void AssertPins()
         {
+            HealDeviceIds();
             // Spin this off async to prevent UI blocking
             Task.Run(() =>
             {
@@ -259,36 +260,82 @@ namespace AudioPin
                 ? Properties.Settings.Default.CommOut
                 : Properties.Settings.Default.CommIn;
 
-            switch (role) {
-                case ERole.eConsole:
-                case ERole.eMultimedia:
-                    return flow == EDataFlow.eRender 
-                        ? [..PinnedOutputDevices.Where(devIdFilter)]
-                        : [..PinnedInputDevices.Where(devIdFilter)];
-                case ERole.eCommunications:
-                    return flow == EDataFlow.eRender 
-                        ? [..(syncComms ? PinnedOutputCommDevices : PinnedOutputDevices).Where(devIdFilter)]
-                        : [..(syncComms ? PinnedInputCommDevices : PinnedInputDevices).Where(devIdFilter)];
-                default:
-                    return [];
+            var activeDevices = role switch
+            {
+                var f when (f == ERole.eConsole || f == ERole.eMultimedia) => flow == EDataFlow.eRender ? PinnedOutputDevices.Where(devIdFilter) : PinnedInputDevices.Where(devIdFilter),
+                ERole.eCommunications => flow == EDataFlow.eRender 
+                    ? (syncComms ? PinnedOutputCommDevices : PinnedOutputDevices).Where(devIdFilter) 
+                    : (syncComms ? PinnedInputCommDevices : PinnedInputDevices).Where(devIdFilter),
+                _ => []
+            };
+
+            // Update IDs here if mismatched.
+            bool save = false;
+            foreach (var device in activeDevices)
+            {
+                var match = devices.FirstOrDefault(d => d.Name == device.Name);
+                if (match != null && match.ID != device.ID)
+                {
+                    device.ID = match.ID;
+                    save = true;
+                }
             }
+
+            if (save) SavePinnedDevices();
+
+            return [..activeDevices];
         }
 
-        #region Ignored Callbacks
+        // Device IDs are unstable and can change when devices are added/removed and reenumerated.
+        private bool HealDeviceIds()
+        {
+            bool changed = false;
+            var inputDevices = GetDevices(EDataFlow.eCapture);
+            var outputDevices = GetDevices(EDataFlow.eRender);
+
+            foreach (var device in PinnedInputDevices)
+            {
+                if (!inputDevices.Any(d => d.ID == device.ID))
+                {
+                    var match = inputDevices.FirstOrDefault(d => d.Name == device.Name);
+                    if (match != null && match.ID != device.ID)
+                    {
+                        device.ID = match.ID;
+                        changed = true;
+                    }
+                }
+            }
+
+            foreach (var device in PinnedOutputDevices)
+            {
+                if (!outputDevices.Any(d => d.ID == device.ID))
+                {
+                    var match = outputDevices.FirstOrDefault(d => d.Name == device.Name);
+                    if (match != null && match.ID != device.ID)
+                    {
+                        device.ID = match.ID;
+                        changed = true;
+                    }
+                }
+            }
+
+            if (changed) SavePinnedDevices();
+            return changed;
+        }
 
         public void OnDeviceStateChanged([MarshalAs(UnmanagedType.LPWStr)] string deviceId, [MarshalAs(UnmanagedType.I4)] EDeviceState newState)
         {
-            // Do nothing
+            HealDeviceIds();
         }
 
         public void OnDeviceAdded([MarshalAs(UnmanagedType.LPWStr)] string pwstrDeviceId)
         {
-            // Do nothing
+            HealDeviceIds();
         }
 
         public void OnDeviceRemoved([MarshalAs(UnmanagedType.LPWStr)] string deviceId)
         {
-            // Do nothing
+            HealDeviceIds();
         }
 
         public void OnPropertyValueChanged([MarshalAs(UnmanagedType.LPWStr)] string pwstrDeviceId, PropertyKey key)
@@ -296,6 +343,6 @@ namespace AudioPin
             // Do nothing
         }
 
-        #endregion
+        
     }
 }
